@@ -80,10 +80,10 @@
       position:absolute; inset:0;
       opacity:0;
       background-size:cover; background-position:center;
-      transform:scale(1.06);
-      transition:opacity 1.4s cubic-bezier(.4,0,.2,1), transform 10s ease;
+      transform:scale(1);
+      transition:opacity 1.4s cubic-bezier(.4,0,.2,1), transform 8s ease-out;
     }
-    .slide-bg.active { opacity:1; transform:scale(1); }
+    .slide-bg.active { opacity:1; transform:scale(1.07); }
     .slide-bg::after {
       content:'';
       position:absolute; inset:0;
@@ -635,6 +635,60 @@
       .trust-row { gap:1.2rem; }
       .ft-links { flex-direction:column; gap:2rem; }
     }
+
+    /* ===== SCROLL HINT ===== */
+    .scroll-hint {
+      position:absolute; bottom:1.6rem; left:50%;
+      transform:translateX(-50%); z-index:20;
+      display:flex; flex-direction:column; align-items:center; gap:.5rem;
+      opacity:0; animation:sh-fade 1s 2.8s ease forwards;
+      pointer-events:none; transition:opacity .5s; white-space:nowrap;
+    }
+    .scroll-hint.hide { opacity:0 !important; }
+    .sh-txt { font-size:.5rem; font-weight:600; letter-spacing:.3em; text-transform:uppercase; color:rgba(255,255,255,.3); }
+    .sh-line { width:1px; height:26px; background:linear-gradient(to bottom, rgba(255,255,255,.35), transparent); animation:sh-bounce 1.3s ease-in-out infinite alternate; }
+    @keyframes sh-fade  { to { opacity:1; } }
+    @keyframes sh-bounce { to { transform:translateY(8px); } }
+    @media(max-width:768px) { .scroll-hint { display:none; } }
+
+    /* ===== ACTIVITY ICONS ===== */
+    .ico {
+      display:inline-block; width:12px; height:12px;
+      vertical-align:middle; margin-right:4px;
+      opacity:.4; position:relative; top:-1px; flex-shrink:0;
+    }
+    /* Lucide replaces <i> with <svg> — pass size through */
+    .ico svg { width:12px !important; height:12px !important; }
+    /* Subtle icon hover lift */
+    .day-pts span:hover .ico { opacity:.7; transform:translateX(2px); transition:opacity .2s, transform .2s; }
+
+    /* ===== ROUTE MAP ===== */
+    #route { padding:9rem 5rem; position:relative; border-top:1px solid var(--border); overflow:hidden; }
+    .rt-track {
+      display:flex; align-items:flex-start;
+      max-width:920px; margin:4rem auto 0;
+    }
+    .rt-stop { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; width:110px; }
+    .rt-line { flex:1; height:1px; background:linear-gradient(90deg, rgba(255,200,87,.5) 0%, rgba(255,200,87,.1) 100%); margin-top:5px; }
+    .rt-dot {
+      width:10px; height:10px; border-radius:50%;
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,200,87,.35);
+      margin-bottom:.9rem; flex-shrink:0;
+      transition:background .4s, box-shadow .4s;
+    }
+    .rt-dot.on { background:var(--accent); border-color:var(--accent); box-shadow:0 0 16px rgba(255,200,87,.55); }
+    .rt-track:hover .rt-dot:not(.on) { background:rgba(255,200,87,.18); }
+    .rt-name { font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:#fff; text-align:center; line-height:1.3; }
+    .rt-meta { font-size:.54rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-top:.28rem; text-align:center; line-height:1.4; }
+
+    @media(max-width:768px) {
+      #route { padding:4.5rem 1.5rem; }
+      .rt-track { flex-direction:column; align-items:flex-start; margin:2.5rem 0 0; }
+      .rt-stop { flex-direction:row; align-items:center; gap:1.2rem; width:100%; }
+      .rt-dot { margin-bottom:0; flex-shrink:0; }
+      .rt-name, .rt-meta { text-align:left; }
+      .rt-line { width:1px; height:2rem; flex:none; background:linear-gradient(180deg, rgba(255,200,87,.5), rgba(255,200,87,.1)); margin-top:0; margin-left:4px; }
+    }
   </style>
 </head>
 <body>
@@ -746,6 +800,12 @@
       <div class="mini-track" id="miniTrack"></div>
     </div>
 
+    <!-- Scroll hint -->
+    <div class="scroll-hint" id="scrollHint">
+      <span class="sh-txt">Discover the journey</span>
+      <div class="sh-line"></div>
+    </div>
+
     <!-- Nav arrows -->
     <div class="hero-nav">
       <button class="hnav-btn" onclick="prev()" aria-label="Previous">←</button>
@@ -780,25 +840,41 @@
           <li class="day-row">
             <span class="day-n">Day 1</span>
             <div class="day-pts">
-              <span>Airport Arrival</span><span>Lake Toba</span><span>Kedai Kacang Tumbuk</span><span>Kebun Anggrek</span><span>Parapat Hotel</span>
+              <span><i class="ico" data-lucide="plane"></i>Airport Arrival</span>
+              <span><i class="ico" data-lucide="waves"></i>Lake Toba</span>
+              <span><i class="ico" data-lucide="utensils"></i>Kedai Kacang Tumbuk</span>
+              <span><i class="ico" data-lucide="flower-2"></i>Kebun Anggrek</span>
+              <span><i class="ico" data-lucide="bed"></i>Parapat Hotel</span>
             </div>
           </li>
           <li class="day-row">
             <span class="day-n">Day 2</span>
             <div class="day-pts">
-              <span>Lake Toba</span><span>Pulau Samosir</span><span>Warisan Tomok</span><span>Ladang Teh Sidamanik</span><span>Puncak Simarjarunjung</span><span>Berastagi Hotel</span>
+              <span><i class="ico" data-lucide="waves"></i>Lake Toba</span>
+              <span><i class="ico" data-lucide="anchor"></i>Pulau Samosir</span>
+              <span><i class="ico" data-lucide="landmark"></i>Warisan Tomok</span>
+              <span><i class="ico" data-lucide="leaf"></i>Ladang Teh Sidamanik</span>
+              <span><i class="ico" data-lucide="mountain"></i>Puncak Simarjarunjung</span>
+              <span><i class="ico" data-lucide="bed"></i>Berastagi Hotel</span>
             </div>
           </li>
           <li class="day-row">
             <span class="day-n">Day 3</span>
             <div class="day-pts">
-              <span>Bukit Gundaling</span><span>Pasar Buah Brastagi</span><span>Strawberry Picking</span><span>Medan City</span><span>Batik Shopping</span>
+              <span><i class="ico" data-lucide="mountain"></i>Bukit Gundaling</span>
+              <span><i class="ico" data-lucide="shopping-bag"></i>Pasar Buah Brastagi</span>
+              <span><i class="ico" data-lucide="leaf"></i>Strawberry Picking</span>
+              <span><i class="ico" data-lucide="map-pin"></i>Medan City</span>
+              <span><i class="ico" data-lucide="shopping-bag"></i>Batik Shopping</span>
             </div>
           </li>
           <li class="day-row">
             <span class="day-n">Day 4</span>
             <div class="day-pts">
-              <span>Maimun Palace</span><span>Great Mosque</span><span>City Tour</span><span>Airport Transfer</span>
+              <span><i class="ico" data-lucide="landmark"></i>Maimun Palace</span>
+              <span><i class="ico" data-lucide="building-2"></i>Great Mosque</span>
+              <span><i class="ico" data-lucide="map-pin"></i>City Tour</span>
+              <span><i class="ico" data-lucide="plane"></i>Airport Transfer</span>
             </div>
           </li>
         </ul>
@@ -813,25 +889,41 @@
           <li class="day-row">
             <span class="day-n">Day 1</span>
             <div class="day-pts">
-              <span>Airport Arrival</span><span>Lake Toba</span><span>Kedai Kacang Tumbuk</span><span>Kebun Teh</span><span>Bukit Simarjarunjung</span><span>Pulau Samosir</span>
+              <span><i class="ico" data-lucide="plane"></i>Airport Arrival</span>
+              <span><i class="ico" data-lucide="waves"></i>Lake Toba</span>
+              <span><i class="ico" data-lucide="utensils"></i>Kedai Kacang Tumbuk</span>
+              <span><i class="ico" data-lucide="leaf"></i>Kebun Teh</span>
+              <span><i class="ico" data-lucide="mountain"></i>Bukit Simarjarunjung</span>
+              <span><i class="ico" data-lucide="anchor"></i>Pulau Samosir</span>
             </div>
           </li>
           <li class="day-row">
             <span class="day-n">Day 2</span>
             <div class="day-pts">
-              <span>Samosir</span><span>Bukit Holbung</span><span>Air Terjun Efrata</span><span>Air Terjun Sipiso-Piso</span><span>Loken Burn</span><span>Pasar Buah Berastagi</span>
+              <span><i class="ico" data-lucide="anchor"></i>Samosir</span>
+              <span><i class="ico" data-lucide="mountain"></i>Bukit Holbung</span>
+              <span><i class="ico" data-lucide="droplets"></i>Air Terjun Efrata</span>
+              <span><i class="ico" data-lucide="droplets"></i>Air Terjun Sipiso-Piso</span>
+              <span><i class="ico" data-lucide="utensils"></i>Loken Burn</span>
+              <span><i class="ico" data-lucide="shopping-bag"></i>Pasar Buah Berastagi</span>
             </div>
           </li>
           <li class="day-row">
             <span class="day-n">Day 3</span>
             <div class="day-pts">
-              <span>Berastagi → Medan</span><span>Sinabung Volcano View</span><span>Great Mosque</span><span>Batik &amp; Perfume Shopping</span>
+              <span><i class="ico" data-lucide="car"></i>Berastagi → Medan</span>
+              <span><i class="ico" data-lucide="mountain"></i>Sinabung Volcano View</span>
+              <span><i class="ico" data-lucide="building-2"></i>Great Mosque</span>
+              <span><i class="ico" data-lucide="shopping-bag"></i>Batik &amp; Perfume Shopping</span>
             </div>
           </li>
           <li class="day-row">
             <span class="day-n">Day 4</span>
             <div class="day-pts">
-              <span>Breakfast</span><span>Maimun Palace</span><span>Oleh-Oleh Souvenirs</span><span>Trip Ends</span>
+              <span><i class="ico" data-lucide="coffee"></i>Breakfast</span>
+              <span><i class="ico" data-lucide="landmark"></i>Maimun Palace</span>
+              <span><i class="ico" data-lucide="shopping-bag"></i>Oleh-Oleh Souvenirs</span>
+              <span><i class="ico" data-lucide="plane"></i>Trip Ends</span>
             </div>
           </li>
         </ul>
@@ -901,6 +993,9 @@
       <p class="about-body">
         We are passionate about showing travelers the best of Medan, Lake Toba, and Berastagi with curated, hassle-free itineraries. Born from a love for North Sumatra's landscapes, culture, and cuisine — every journey we craft carries the warmth of local hospitality and the depth of Batak heritage.
       </p>
+      <p class="about-body" style="margin-top:1.1rem;opacity:.75;">
+        Our guides were born and raised here. They know the hidden viewpoints above Samosir, the best warung on the Toba shoreline, the stories behind Maimun Palace that no guidebook mentions.
+      </p>
       <div class="stats stagger">
         <div><div class="stat-n">500+</div><div class="stat-l">Happy Travelers</div></div>
         <div><div class="stat-n">4.9★</div><div class="stat-l">Average Rating</div></div>
@@ -911,6 +1006,48 @@
       <div class="emblem">
         <div class="emblem-sym">∞</div>
         <div class="emblem-txt">North Sumatra Experiences</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROUTE MAP -->
+  <section id="route" style="position:relative;">
+    <span class="sec-ghost">03</span>
+    <div class="reveal">
+      <span class="line-sweep"></span>
+      <div class="sec-tag"><span>Your Journey</span></div>
+      <h2 class="sec-ttl">The Full<br>Route</h2>
+      <p class="sec-sub">Four days, five stops — from the gateway city to the volcanic caldera, across to a sacred island, up into the cool highlands, and home.</p>
+    </div>
+    <div class="rt-track reveal d1">
+      <div class="rt-stop">
+        <div class="rt-dot on"></div>
+        <div class="rt-name">Medan</div>
+        <div class="rt-meta">Start</div>
+      </div>
+      <div class="rt-line"></div>
+      <div class="rt-stop">
+        <div class="rt-dot"></div>
+        <div class="rt-name">Lake Toba</div>
+        <div class="rt-meta">~4 hrs</div>
+      </div>
+      <div class="rt-line"></div>
+      <div class="rt-stop">
+        <div class="rt-dot"></div>
+        <div class="rt-name">Samosir</div>
+        <div class="rt-meta">Ferry</div>
+      </div>
+      <div class="rt-line"></div>
+      <div class="rt-stop">
+        <div class="rt-dot"></div>
+        <div class="rt-name">Berastagi</div>
+        <div class="rt-meta">~3 hrs</div>
+      </div>
+      <div class="rt-line"></div>
+      <div class="rt-stop">
+        <div class="rt-dot"></div>
+        <div class="rt-name">Medan</div>
+        <div class="rt-meta">Return</div>
       </div>
     </div>
   </section>
@@ -1122,6 +1259,7 @@
     Chat Now
   </a>
 
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script>
   // ========== SLIDE DATA ==========
   // NOTE: imgs[] are mini-gallery thumbnails per slide.
@@ -1525,6 +1663,15 @@ Please share details and next steps. Thank you! 🙏`;
     waFab.classList.toggle('show', !entries[0].isIntersecting);
   }, { threshold: 0.15 });
   heroObsFab.observe(document.getElementById('hero'));
+
+  // ========== SCROLL HINT ==========
+  const scrollHint = document.getElementById('scrollHint');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 60) scrollHint.classList.add('hide');
+  }, { passive: true });
+
+  // ========== LUCIDE ICONS ==========
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 
   // ========== INIT ==========
   refreshMini();
